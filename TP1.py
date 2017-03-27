@@ -101,21 +101,22 @@ se transformar a imagem para um array. O código seguinte representa o pixel mai
 Apresente oito imagens, cada uma com o valor de cada bit para todos os pixeis.
 """
 
+
 def bitvalue(img_g):
-    #array com o valor de cada bit
-    bits = [1,2,4,8,16,32,64,128]
+    # array com o valor de cada bit
+    bits = [1, 2, 4, 8, 16, 32, 64, 128]
     # numero de colunas e linhas do array bidimensional
     cols = len(img_g)
     rows = len(img_g[0])
-    #itera cada bit
+    # itera cada bit
     for i in range(len(bits)):
-        #em cada bit cria uma imagem para representar o plano de bits
+        # em cada bit cria uma imagem para representar o plano de bits
         y = np.zeros((cols, rows), dtype=np.uint8)
-        #itera nas linhas e colunas
+        # itera nas linhas e colunas
         for z in range(len(img_g)):
             for t in range(len(img_g[z])):
-                #avalia a expressão binaria em 8 bits para saber se o bit esta activo
-                if '{0:08b}'.format(img_g[z][t])[7-i] == '1':
+                # avalia a expressão binaria em 8 bits para saber se o bit esta activo
+                if '{0:08b}'.format(img_g[z][t])[7 - i] == '1':
                     # se o bit esta activo o pixel é guardado com o valor respectivo
                     y[z][t] = bits[i]
         cv2.imshow('Bit Plane - bit %i' % i, y * 1.0)
@@ -130,27 +131,29 @@ bitvalue(x_img_g)
 Grave uma imagem que contém apenas a informação dos 4 bits mais signiﬁcantes da imagem.
 """
 
-def mostSigBits(img_g):
-    #array com o valor de cada bit
-    bits = [1,2,4,8,16,32,64,128]
+
+def mostsigbits(img_g):
+    # array com o valor de cada bit
+    bits = [1, 2, 4, 8, 16, 32, 64, 128]
     # numero de colunas e linhas do array bidimensional
     cols = len(img_g)
     rows = len(img_g[0])
     # array de destino iniciado a zeros
     y = np.zeros((cols, rows), dtype=np.uint8)
-    #itera os 4 bits mais significantes
+    # itera os 4 bits mais significantes
     for i in range(len(bits) / 2, len(bits)):
-        #itera a imagem nas linhas e colunas
+        # itera a imagem nas linhas e colunas
         for z in range(len(img_g)):
             for t in range(len(img_g[z])):
-                #avalia a expressão binaria em 8 bits para saber se o bit esta activo
-                if '{0:08b}'.format(img_g[z][t])[7-i] == '1':
+                # avalia a expressão binaria em 8 bits para saber se o bit esta activo
+                if '{0:08b}'.format(img_g[z][t])[7 - i] == '1':
                     # se o bit esta activo o valor do bit é adicionado ao pixel
                     y[z][t] += bits[i]
     cv2.imshow('Imagem com os 4 bits mais significativos', y)
     cv2.imwrite('4bitsig.bmp', img_g)
 
-mostSigBits(x_img_g)
+
+mostsigbits(x_img_g)
 
 # 7
 
@@ -159,41 +162,42 @@ Crie uma função que apresente uma imagem (100 × 100) como se apresenta na ﬁ
 é dado por parâmetro passado à função (o ângulo é um valor inteiro entre 0 e 360 graus).
 """
 
-#7 -> criar um array a branco arr=np.ones((4,4))*255
+
+# 7 -> criar um array a branco arr=np.ones((4,4))*255
 #  -> calcular o angulo com alpha=np.arctan(y/x.)*180/np.pi
 #  ->
 #  ->
 
-def create_blank(width, height, rgb_fundo=(0, 0, 0), rgb_cor=(0, 0, 0)):
+def create_image(wid, hw, rgb_fundo=(0, 0, 0), rgb_cor=(0, 0, 0)):
     # Create black blank image
-    image = np.ones((height, width, 3), np.uint8)
+    img = np.ones((hw, wid, 3), np.uint8)
     # Since OpenCV uses BGR, convert the color first
     color = tuple(reversed(rgb_fundo))
     # Fill image with color
-    image[:] = color
-    #alpha = np.arctan(250 / 5) * 180 / np.pi
-    Thickness = 1
+    img[:] = color
+    # alpha = np.arctan(250 / 5) * 180 / np.pi
+    thickness = 1
 
     y = 0
     while y <= 500:
-        cv2.line(image, (width/2, height/2), (width, y), rgb_cor, Thickness)
-        cv2.line(image, (width/2, height/2), (0, y), rgb_cor, Thickness)
+        cv2.line(img, (wid / 2, hw / 2), (wid, y), rgb_cor, thickness)
+        cv2.line(img, (wid / 2, hw / 2), (0, y), rgb_cor, thickness)
         y += 10
     x = 0
     while x <= 500:
-        cv2.line(image, (width/2, height/2), (x, 0), rgb_cor, Thickness)
-        cv2.line(image, (width/2, height/2), (x, height), rgb_cor, Thickness)
+        cv2.line(img, (wid / 2, hw / 2), (x, 0), rgb_cor, thickness)
+        cv2.line(img, (wid / 2, hw / 2), (x, hw), rgb_cor, thickness)
         x += 10
 
-    return image
+    return img
+
 
 width, height = 500, 500
 branco = (255, 255, 255)
 preto = (0, 0, 0)
 
-
-image = create_blank(width, height, branco, preto)
+image = create_image(width, height, branco, preto)
 cv2.imshow('Invencao', image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
-#cv2.imwrite('test.jpg', image)
+# cv2.imwrite('test.jpg', image)
