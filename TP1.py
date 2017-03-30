@@ -118,7 +118,7 @@ def bitvalue(img_g):
                     # se o bit esta activo o pixel é guardado com o valor respectivo
                     y[z][t] = bits[i]
         cv2.imshow('Bit Plane - bit %i' % i, y * 1.0)
-        cv2.imwrite('Bit Plane - bit %i.bmp' % i, img_g)
+        cv2.imwrite('Bit Plane - bit %i.bmp' % i, y * 1.0)
 
 
 bitvalue(x_img_g)
@@ -165,7 +165,7 @@ Crie uma função que apresente uma imagem (100 × 100) como se apresenta na ﬁ
 #  -> calcular o angulo com alpha=np.arctan(y/x.)*180/np.pi
 #  ->
 #  ->
-
+#
 def create_image(wid, hw, rgb_fundo=(0, 0, 0), rgb_cor=(0, 0, 0)):
     # Create black blank image
     img = np.ones((hw, wid, 3), np.uint8)
