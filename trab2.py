@@ -6,7 +6,6 @@ from time import time
 from os import path
 import numpy as np
 import cv2
-from anytree import Node, RenderTree
 import matplotlib.pyplot as plt
 import Queue
 
@@ -33,45 +32,46 @@ tabela_codigo = gera_huffman(np.arange(0,256),h)
 t1 = time()
 print "time:", t1-t0
 
-
 def gera_huffman(bins, h):
     prob = bins
     #Cria um diciionario (numero de ocorrencias,valor) organizado por ordem crescente
-    dic = sorted(list(t) for t in zip(h, bins))
+    bits = ["" for x in range(len(h))]
+    dic = sorted(list(t) for t in zip(h, bins, bits))
 
     #remove ocorrencias nulas do array
     while dic[0][0] == 0:
         dic.remove(dic[0])
 
-    p = Queue.PriorityQueue()
-    for value in dic:  # 1. Create a leaf node for each symbol
-        p.put(value)
-    while p.qsize() > 1:  # 2. While there is more than one node
-        l, r = p.get(), p.get()  # 2a. remove two highest nodes
-        zero = Node("0")  # 2b. create internal node with children
-        one = Node("1")
-        p.put((l[0] + r[0], node))  # 2c. add new node to queue
-    return p.get()  # 3. tree is complete - return root node
-
-
-
-    idx = np.argsort(dic)
-
-
-    #removemos todos os valores nulos
-    h = np.trim_zeros(h)
-
-
-
-    simbolos = np.zeros(len(np.trim_zeros(h)))
-    idx = np.argsort(h)
-    for i in range(len(h)):
-        if h[i] != 0:
-
-
-
-
-
+    def create_tree(dic):
+        p = Queue.PriorityQueue()
+        for value in dic:  # 1. Create a leaf node for each symbol
+            p.put(value)
+        while p.qsize() > 1:  # 2. While there is more than one node
+            l, r = p.get(), p.get()  # 2a. remove two highest nodes
+            for i in range(len(dic)):
+                if type(l[1]) == np.float64:
+                    if dic[i][1] == l[1]:
+                        dic[i][2] += '0'
+                else:
+                    for z in range(len(l[1])):
+                        if dic[i][1] == l[1][z]:
+                            dic[i][2] += '0'
+                if type(r[1]) == np.float64:
+                    if dic[i][1] == r[1]:
+                        dic[i][2] += '1'
+                else:
+                    for z in range(len(r[1])):
+                        if dic[i][1] == r[1][z]:
+                            dic[i][2] += '1'
+            if (type(l[1]) == np.float64 and type(r[1]) == np.float64):
+                p.put([l[0] + r[0], [l[1]] + [r[1]], ""])
+            elif (type(l[1]) == np.float64 and type(r[1]) != np.float64):
+                p.put([l[0] + r[0], [l[1]] + r[1], ""])
+            elif (type(l[1]) != np.float64 and type(r[1]) == np.float64):
+                p.put([l[0] + r[0], l[1] + [r[1]], ""])
+            else:
+                p.put([l[0] + r[0], l[1] + r[1], ""])
+        return p.get()  # 3. tree is complete - return root node
 
 # 2
 
