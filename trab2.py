@@ -8,6 +8,7 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 import Queue
+import pprint
 
 # 1
 
@@ -28,50 +29,51 @@ h, bins, patches = plt.hist(xi, 256,[0,256])
 
 # Gera o código de Huffman
 t0 = time()
-tabela_codigo = gera_huffman(np.arange(0,256),h)
+tabela_codigo = gera_huffman(h)
 t1 = time()
 print "time:", t1-t0
 
-def gera_huffman(bins, h):
-    prob = bins
-    #Cria um diciionario (numero de ocorrencias,valor) organizado por ordem crescente
-    bits = ["" for x in range(len(h))]
+def gera_huffman(h):
+
+    #simbolos do algoritmo - neste caso uma gama de valores numa lista de listas
+    bins = [[x] for x in xrange(len(h))]
+    #String vazia para guardar os bits resultantes da codificacao
+    bits = ["" for y in xrange(len(h))]
+
+    # Cria um array de arrays (numero de ocorrencias,valor, codificação) organizado por ordem crescente
     dic = sorted(list(t) for t in zip(h, bins, bits))
 
     #remove ocorrencias nulas do array
     while dic[0][0] == 0:
         dic.remove(dic[0])
 
-    def create_tree(dic):
-        p = Queue.PriorityQueue()
-        for value in dic:  # 1. Create a leaf node for each symbol
-            p.put(value)
-        while p.qsize() > 1:  # 2. While there is more than one node
-            l, r = p.get(), p.get()  # 2a. remove two highest nodes
-            for i in range(len(dic)):
-                if type(l[1]) == np.float64:
-                    if dic[i][1] == l[1]:
-                        dic[i][2] += '0'
-                else:
-                    for z in range(len(l[1])):
-                        if dic[i][1] == l[1][z]:
-                            dic[i][2] += '0'
-                if type(r[1]) == np.float64:
-                    if dic[i][1] == r[1]:
-                        dic[i][2] += '1'
-                else:
-                    for z in range(len(r[1])):
-                        if dic[i][1] == r[1][z]:
-                            dic[i][2] += '1'
-            if (type(l[1]) == np.float64 and type(r[1]) == np.float64):
-                p.put([l[0] + r[0], [l[1]] + [r[1]], ""])
-            elif (type(l[1]) == np.float64 and type(r[1]) != np.float64):
-                p.put([l[0] + r[0], [l[1]] + r[1], ""])
-            elif (type(l[1]) != np.float64 and type(r[1]) == np.float64):
-                p.put([l[0] + r[0], l[1] + [r[1]], ""])
-            else:
-                p.put([l[0] + r[0], l[1] + r[1], ""])
-        return p.get()  # 3. tree is complete - return root node
+    #implementa uma fila para simular o funcionamento do algoritmo
+    p = Queue.PriorityQueue()
+    #popula a fila com os valores do array
+    for value in dic:
+        p.put(value)
+    #enquanto o fila tiver mais que um nó
+    while p.qsize() > 1:
+        # extrai os dois nós esquerda e direita com o valor mais pequeno
+        l, r = p.get(), p.get()
+        #itera no array de valores e nos simbolos dos nós
+        for i in range(len(dic)):
+            for z in range(len(l[1])):
+                #se o simbolo no dicionario for igual ao simbolo do nó extraido
+                if dic[i][1][0] == l[1][z]:
+                    #para o no da esquerda guarda o bit 0 na codificação
+                    dic[i][2] += '0'
+            for t in range(len(r[1])):
+                if dic[i][1][0] == r[1][t]:
+                    dic[i][2] += '1'
+
+        p.put([l[0] + r[0], l[1] + r[1]])
+
+    #inverte a string com a codificação para representar o percurso da raiz até as folhas
+    for i in range(len(dic)):
+        dic[i][2] = dic[i][2][::-1]
+
+    pprint.pprint(dic)
 
 # 2
 
