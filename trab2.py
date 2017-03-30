@@ -25,43 +25,38 @@ x = cv2.imread("lena.tiff", cv2.IMREAD_GRAYSCALE)
 # Converte a imagem (matriz) numa sequência de números (array)
 xi = x.ravel()
 # Calcula o histogram
-h, bins, patches = plt.hist(xi, 256,[0,256])
+h, bins, patches = plt.hist(xi, 256, [0, 256])
 
-# Gera o código de Huffman
-t0 = time()
-tabela_codigo = gera_huffman(h)
-t1 = time()
-print "time:", t1-t0
 
-def gera_huffman(h):
+def gera_huffman(freq):
 
-    #simbolos do algoritmo - neste caso uma gama de valores numa lista de listas
-    bins = [[x] for x in xrange(len(h))]
-    #String vazia para guardar os bits resultantes da codificacao
-    bits = ["" for y in xrange(len(h))]
+    # simbolos do algoritmo - neste caso uma gama de valores numa lista de listas
+    simbolos = [[i] for i in xrange(len(freq))]
+    # String vazia para guardar os bits resultantes da codificacao
+    bits = ["" for y in xrange(len(freq))]
 
     # Cria um array de arrays (numero de ocorrencias,valor, codificação) organizado por ordem crescente
-    dic = sorted(list(t) for t in zip(h, bins, bits))
+    dic = sorted(list(t) for t in zip(freq, simbolos, bits))
 
-    #remove ocorrencias nulas do array
+    # remove ocorrencias nulas do array
     while dic[0][0] == 0:
         dic.remove(dic[0])
 
-    #implementa uma fila para simular o funcionamento do algoritmo
+    # implementa uma fila para simular o funcionamento do algoritmo
     p = Queue.PriorityQueue()
-    #popula a fila com os valores do array
+    # popula a fila com os valores do array
     for value in dic:
         p.put(value)
-    #enquanto o fila tiver mais que um nó
+    # enquanto o fila tiver mais que um nó
     while p.qsize() > 1:
         # extrai os dois nós esquerda e direita com o valor mais pequeno
         l, r = p.get(), p.get()
-        #itera no array de valores e nos simbolos dos nós
+        # itera no array de valores e nos simbolos dos nós
         for i in range(len(dic)):
             for z in range(len(l[1])):
-                #se o simbolo no dicionario for igual ao simbolo do nó extraido
+                # se o simbolo no dicionario for igual ao simbolo do nó extraido
                 if dic[i][1][0] == l[1][z]:
-                    #para o no da esquerda guarda o bit 0 na codificação
+                    # para o no da esquerda guarda o bit 0 na codificação
                     dic[i][2] += '0'
             for t in range(len(r[1])):
                 if dic[i][1][0] == r[1][t]:
@@ -69,11 +64,19 @@ def gera_huffman(h):
 
         p.put([l[0] + r[0], l[1] + r[1]])
 
-    #inverte a string com a codificação para representar o percurso da raiz até as folhas
+    # inverte a string com a codificação para representar o percurso da raiz até as folhas
     for i in range(len(dic)):
         dic[i][2] = dic[i][2][::-1]
 
     pprint.pprint(dic)
+
+    return dic
+
+# Gera o código de Huffman
+t0 = time()
+tabela_codigo = gera_huffman(h)
+t1 = time()
+print "time:", t1-t0
 
 # 2
 
