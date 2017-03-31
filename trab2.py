@@ -10,6 +10,9 @@ import matplotlib.pyplot as plt
 import Queue
 import pprint
 
+# biblioteca eficiente para a representação de bits
+from bitarray import bitarray
+
 # 1
 
 """
@@ -19,13 +22,6 @@ símbolos e as suas probabilidades (ou em alternativa pode usar o número de oco
 pelo seu histograma). Também pode em alternativa gerar não uma tabela mas outra estrutura de dados com os
 códigos pretendidos.
 """
-
-# Lê a imagem em níveis de cinzento
-x = cv2.imread("lena.tiff", cv2.IMREAD_GRAYSCALE)
-# Converte a imagem (matriz) numa sequência de números (array)
-xi = x.ravel()
-# Calcula o histogram
-h, bins, patches = plt.hist(xi, 256, [0, 256])
 
 
 def gera_huffman(freq):
@@ -52,31 +48,26 @@ def gera_huffman(freq):
         # extrai os dois nós esquerda e direita com o valor mais pequeno
         l, r = p.get(), p.get()
         # itera no array de valores e nos simbolos dos nós
-        for i in range(len(dic)):
-            for z in range(len(l[1])):
+        for i in xrange(len(dic)):
+            for z in xrange(len(l[1])):
                 # se o simbolo no dicionario for igual ao simbolo do nó extraido
                 if dic[i][1][0] == l[1][z]:
                     # para o no da esquerda guarda o bit 0 na codificação
                     dic[i][2] += '0'
-            for t in range(len(r[1])):
+            for t in xrange(len(r[1])):
                 if dic[i][1][0] == r[1][t]:
                     dic[i][2] += '1'
 
         p.put([l[0] + r[0], l[1] + r[1]])
 
     # inverte a string com a codificação para representar o percurso da raiz até as folhas
-    for i in range(len(dic)):
+    for i in xrange(len(dic)):
         dic[i][2] = dic[i][2][::-1]
 
+    # imprime a array resultante em formato tabela
     pprint.pprint(dic)
 
     return dic
-
-# Gera o código de Huffman
-t0 = time()
-tabela_codigo = gera_huffman(h)
-t1 = time()
-print "time:", t1-t0
 
 # 2
 
@@ -85,12 +76,31 @@ Elabore uma função ("codiﬁca") que dada uma mensagem (sequência de símbolo
 retorne uma sequência de bits com a mensagem codiﬁcada.
 """
 
+
+def codifica(seqsimbo, tabela_cod):
+    seqbits = bitarray()
+    for i in xrange(len(seqsimbo)):
+        for z in xrange(len(tabela_cod)):
+            if seqsimbo[i] == tabela_cod[z][1][0]:
+                seqbits += bitarray(tabela_cod[z][2])
+
+    return seqbits
+
 # 3
 
 """
 Elabore uma função ("descodiﬁca") que dada uma sequência de bits (mensagem codiﬁcada) e a tabela do ponto
 1, retorne uma sequência de símbolos (mensagem descodiﬁcada).
 """
+
+
+def descodifica(seqbits, tabela_cod):
+    seqsimbo = np.zeros(len(tabela_cod))
+    for i in xrange(len(tabela_cod)):
+        if seqsimbo[i] == tabela_cod[i][2]:
+            seqbits += bitarray(tabela_cod[z][2])
+
+    return seqbits
 
 # 4
 
@@ -127,23 +137,41 @@ demora a fazer a descodiﬁcação.
 g) Compare a mensagem descodiﬁcada com a original e veriﬁque que são iguais (erro nulo).
 """
 
+"""
+-----------------------MAIN----------------------------
+"""
+
+
+# Lê a imagem em níveis de cinzento
+x = cv2.imread("lena.tiff", cv2.IMREAD_GRAYSCALE)
+# Converte a imagem (matriz) numa sequência de números (array)
+xi = x.ravel()
+# Calcula o histogram
+h, bins, patches = plt.hist(xi, 256, [0, 256])
+
+# Gera o código de Huffman
+t0 = time()
+tabela_codigo = gera_huffman(h)
+t1 = time()
+print "time:", t1-t0
 
 
 # Codifica e grava ficheiro
-seq_bit0 = codifica(xi,tabela_codigo)
+seq_bit0 = codifica(xi, tabela_codigo)
+
 escrever(seq_bit0, filename)
 t2 = time()
 print "time:", t2-t1
+
 # Lê ficheiro e descodifica
 seq_bit1 = ler(filename)
-yi = descodifica(seq_bit1,tabela_codigo)
+yi = descodifica(seq_bit1 ,tabela_codigo)
 t3 = time()
 print "time:", t3-t2
 size_ini = path.getsize("filename original image")
 size_end = path.getsize("filename compressed")
-print "taxa: ", 1.* size_ini / size_end
+print "taxa: ", 1. * size_ini / size_end
 plt.show()
 cv2.waitKey(0)
 plt.close("all")
 cv2.destroyAllWindows()
-
