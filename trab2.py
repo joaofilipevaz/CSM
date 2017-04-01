@@ -109,12 +109,20 @@ Elabore uma função ("escrever") que dada uma sequência de bits (mensagem codi
 escreva a sequência de bits para o ﬁcheiro.
 """
 
+def escrever(seqbits, nomeficheiro):
+    return null
+
+
 # 5
 
 """
 Elabore uma função ("ler") que dado o nome do ﬁcheiro, leia uma sequência de bits (mensagem codiﬁcada)
 contida no ﬁcheiro.
 """
+
+def ler(nomeficheiro):
+
+    return seqbits
 
 # 6
 
