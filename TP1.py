@@ -166,6 +166,35 @@ Crie uma função que apresente uma imagem (100 × 100) como se apresenta na ﬁ
 #  ->
 #  ->
 #
+
+def cria_imagem(angulo, dim):
+    #array vazio com a imagem
+    img = np.ones((dim, dim), np.uint8)
+
+    cor = 0
+
+    x, y = np.meshgrid(np.arange(0, dim), np.arange(0, dim))
+    findcenterX = (len(x)-1)/2.
+    findcenterY = (len(y) - 1) / 2.
+    x = x-findcenterX
+    y= y-findcenterY
+    y = 1j*y
+    z = x + y
+    a = np.angle(z)*180./np.pi
+    for n in range(-360/angulo, 360/angulo):
+        idx = ((a >= n*angulo) & (a < (n+1)*angulo))
+        img[idx] = cor
+        if cor ==0:
+            cor = 255
+        else:
+            cor = 0
+    return img
+
+image = cria_imagem(1, 600)
+cv2.imshow('Invencao', image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
 def create_image(wid, hw, rgb_fundo=(0, 0, 0), rgb_cor=(0, 0, 0)):
     # Create black blank image
     img = np.ones((hw, wid, 3), np.uint8)
@@ -173,7 +202,7 @@ def create_image(wid, hw, rgb_fundo=(0, 0, 0), rgb_cor=(0, 0, 0)):
     color = tuple(reversed(rgb_fundo))
     # Fill image with color
     img[:] = color
-    # alpha = np.arctan(250 / 5) * 180 / np.pi
+    alpha = np.arctan(250 / 5) * 180 / np.pi
     thickness = 1
 
     y = 0
