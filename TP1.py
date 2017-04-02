@@ -2,7 +2,10 @@
 
 # Trabalho 1 CSM
 
+# João Filipe Vaz - 40266 | João Ventura - 38950
+
 import cv2
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -24,28 +27,53 @@ Grave a mesma imagem, mas agora em formato "JPEG"com diferentes qualidades. Veri
 qualidade das imagens assim como o tamanho do ﬁcheiro. Calcule a taxa de compressão, a SNR e a PSNR.
 """
 
+
+# calcula o mean square error
+def meanse(x_img_original, x_img_transformada):
+    # mean square error
+    mse = 0
+    for i in range(len(x_img_original)):
+        for z in range(len(x_img_original[i])):
+            for t in range(len(x_img_original[i][z])):
+                # O erro é dado pelo quadrado da diferença entre os dados originais e os transformados
+                mse += ((float(x_img_original[i][z][t]) - float(x_img_transformada[i][z][t])) ** 2)
+    return mse / x_img.size
+
+
+# calcula o peak signal to noise ratio
+def peaksnr(mse, bits):
+    # como a imagem possui 8 bits por amostra - uint8 - o valor maximo possivel é 255
+    return round(10. * np.log10((2 ** bits) ** 2 / mse), 3)
+
+
+# calcula o signal to noise ratio
+def snr(x_img_transformada, mse):
+    # potencia do sinal
+    p_sinal = np.sum(x_img_transformada.astype(np.float64)**2) / x_img_transformada.size
+    return round(10. * np.log10(p_sinal / mse), 3)
+
+
 cv2.imwrite('file1.jpg', x_img, (cv2.IMWRITE_JPEG_QUALITY, 80))
 cv2.imwrite('file2.jpg', x_img, (cv2.IMWRITE_JPEG_QUALITY, 10))
 
-#
-# def SNR(img_original, img_transformada):
-#     # colocar um for
-#     Pplano0 = sum(img1[::0] ** 2) / len(img1[::0])
-#     Pplano1 = sum(img1[::1] ** 2) / len(img1[::1])
-#     Pplano2 = sum(img1[::2] ** 2) / len(img1[::2])
-#     nPixeis =
-#     Pimagem = (Pplano0 + Pplano1 + Pplano2) / nPixeis
-#
-#     erro = x_img - img1
-#     # colocar um for
-#     PEplano0 = sum(erro[::0] ** 2) / len(erro[::0])
-#     PEplano1 = sum(erro[::1] ** 2) / len(erro[::1])
-#     PEplano2 = sum(erro[::2] ** 2) / len(erro[::2])
-#     nPixeis =
-#     Perro = (PEplano0 + PEplano1 + PEplano2) / nPixeis
-#     SNR = 10 * m.log10(Pimagem / Perro)  # SNR pratica
-#
-#     return SNR
+x_img_hi = cv2.imread("file1.jpg")
+x_img_lo = cv2.imread("file2.jpg")
+
+dim_img_original = os.path.getsize("lenac.tif")
+dim_img_jpg_hi = os.path.getsize("file1.jpg")
+dim_img_jpg_lo = os.path.getsize("file2.jpg")
+
+txcomp_img_jpg_lo = int(dim_img_original / dim_img_jpg_lo)
+txcomp_img_jpg_hi = int(dim_img_original / dim_img_jpg_hi)
+
+print "a taxa de compressão da imagem de alta qualidade é de {} para 1".format(txcomp_img_jpg_hi)
+print "e a de baixa qualidade é de {} para 1".format(txcomp_img_jpg_lo)
+
+print "a SNR da imagem de alta qualidade é de {}".format(snr(x_img_hi, meanse(x_img, x_img_hi)))
+print "a SNR da imagem de baixa qualidade é de {}".format(snr(x_img_lo, meanse(x_img, x_img_lo)))
+
+print "a Peak SNR da imagem de alta qualidade é de {}".format(peaksnr(meanse(x_img, x_img_hi), 8))
+print "a Peak SNR da imagem de baixa qualidade é de {}".format(peaksnr(meanse(x_img, x_img_lo), 8))
 
 # 3
 
@@ -87,7 +115,7 @@ Apresente o histograma da imagem em tons de cizento, veriﬁque quantos níveis 
 plt.hist(x_img_g.ravel(), 256, [0, 256])
 
 """
-Os pixeis da imagem estão distribuidos entre os niveis de cinzento 30 e 230, sendo que os picos de distribuiçºao estão a
+Os pixeis da imagem estão distribuidos entre os niveis de cinzento 30 e 230, sendo que os picos de distribuição estão a
 volta dos niveis 50, 100 e 150. A imagem tem 256 niveis diferentes de cinzento.
 """
 
