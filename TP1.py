@@ -161,30 +161,31 @@ Crie uma função que apresente uma imagem (100 × 100) como se apresenta na ﬁ
 """
 
 
-# 7 -> criar um array a branco arr=np.ones((4,4))*255
-#  -> calcular o angulo com alpha=np.arctan(y/x.)*180/np.pi
-#  ->
-#  ->
-#
-
 def cria_imagem(angulo, dim):
-    #array vazio com a imagem
-    img = np.ones((dim, dim), np.uint8)
-
+    # inizializamos array vazio para a imagem
+    img = np.zeros((dim, dim), np.uint8)
     cor = 0
-
-    x, y = np.meshgrid(np.arange(0, dim), np.arange(0, dim))
-    findcenterX = (len(x)-1)/2.
-    findcenterY = (len(y) - 1) / 2.
-    x = x-findcenterX
-    y= y-findcenterY
-    y = 1j*y
+    # cria uma grelha ortogonal entre 0 e dim
+    x, y = np.meshgrid(np.arange(0, dim, dtype=np.float64), np.arange(0, dim, dtype=np.float64))
+    # calcula o centro da grelha
+    origem_x = (len(x) - 1) / 2.
+    origem_y = (len(y) - 1) / 2.
+    # recalcula x e y como um referencial face a origem
+    x -= origem_x
+    y -= origem_y
+    # multiplica y pela componente imaginaria
+    y = y * 1j
+    # junta a parte real e imaginaria para obter coordenadas complexas
     z = x + y
+    # Calcula todos os algulos relativos às coordenanas complexas z
     a = np.angle(z)*180./np.pi
     for n in range(-360/angulo, 360/angulo):
-        idx = ((a >= n*angulo) & (a < (n+1)*angulo))
-        img[idx] = cor
-        if cor ==0:
+        # verifica quais os elementos do array dentro da area definida pelo angulo a
+        indice = ((a >= n*angulo) & (a < (n+1)*angulo))
+        # atribui a cor aos pixeis correspondentes
+        img[indice] = cor
+        # pinta os sectores alternadamente
+        if cor == 0:
             cor = 255
         else:
             cor = 0
@@ -194,37 +195,4 @@ image = cria_imagem(1, 600)
 cv2.imshow('Invencao', image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
-
-def create_image(wid, hw, rgb_fundo=(0, 0, 0), rgb_cor=(0, 0, 0)):
-    # Create black blank image
-    img = np.ones((hw, wid, 3), np.uint8)
-    # Since OpenCV uses BGR, convert the color first
-    color = tuple(reversed(rgb_fundo))
-    # Fill image with color
-    img[:] = color
-    alpha = np.arctan(250 / 5) * 180 / np.pi
-    thickness = 1
-
-    y = 0
-    while y <= 500:
-        cv2.line(img, (wid / 2, hw / 2), (wid, y), rgb_cor, thickness)
-        cv2.line(img, (wid / 2, hw / 2), (0, y), rgb_cor, thickness)
-        y += 10
-    x = 0
-    while x <= 500:
-        cv2.line(img, (wid / 2, hw / 2), (x, 0), rgb_cor, thickness)
-        cv2.line(img, (wid / 2, hw / 2), (x, hw), rgb_cor, thickness)
-        x += 10
-
-    return img
-
-
-width, height = 500, 500
-branco = (255, 255, 255)
-preto = (0, 0, 0)
-
-image = create_image(width, height, branco, preto)
-cv2.imshow('Invencao', image)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-# cv2.imwrite('test.jpg', image)
+cv2.imwrite('imagem_abstracta.bmp', image)
