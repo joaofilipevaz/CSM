@@ -78,7 +78,24 @@ retorne uma sequência de bits com a mensagem codiﬁcada.
 
 
 def codifica(seqsimbo, tabela_cod):
+
+    #Sequencia de bits com a codificação da mensagem e header
     seqbits = bitarray()
+
+    # segmento de 8 bits com o numero de simbolos activos
+    num_simb_activos = '{0:08b}'.format(len(tabela_codigo))
+
+    # adeiciona o n simb ao header
+    seqbits += num_simb_activos
+
+    #itera na tabela de codigo para criar o header
+    for r in xrange(len(tabela_cod)):
+        # adiciona o simbolo ao header
+        seqbits += '{0:08b}'.format(tabela_codigo[r][1][0])
+        # adiciona ao header a dim em nº bits resultante da codificação do simbolo
+        seqbits += '{0:06b}'.format(len(tabela_codigo[r][2]))
+
+    #itera para criar a mensagem
     for i in xrange(len(seqsimbo)):
         for z in xrange(len(tabela_cod)):
             if seqsimbo[i] == tabela_cod[z][1][0]:
