@@ -25,7 +25,6 @@ códigos pretendidos.
 
 
 def gera_huffman(freq):
-
     # simbolos do algoritmo - neste caso uma gama de valores numa lista de listas
     simbolos = [[i] for i in xrange(len(freq))]
     # String vazia para guardar os bits resultantes da codificacao
@@ -69,6 +68,7 @@ def gera_huffman(freq):
 
     return dic
 
+
 # 2
 
 """
@@ -78,8 +78,7 @@ retorne uma sequência de bits com a mensagem codiﬁcada.
 
 
 def codifica(seqsimbo, tabela_cod):
-
-    #Sequencia de bits com a codificação da mensagem e header
+    # Sequencia de bits com a codificação da mensagem e header
     seqbits = bitarray()
 
     # segmento de 8 bits com o numero de simbolos activos
@@ -88,20 +87,21 @@ def codifica(seqsimbo, tabela_cod):
     # adeiciona o n simb ao header
     seqbits += num_simb_activos
 
-    #itera na tabela de codigo para criar o header
+    # itera na tabela de codigo para criar o header
     for r in xrange(len(tabela_cod)):
         # adiciona o simbolo ao header
         seqbits += '{0:08b}'.format(tabela_codigo[r][1][0])
         # adiciona ao header a dim em nº bits resultante da codificação do simbolo
         seqbits += '{0:06b}'.format(len(tabela_codigo[r][2]))
 
-    #itera para criar a mensagem
+    # itera para criar a mensagem
     for i in xrange(len(seqsimbo)):
         for z in xrange(len(tabela_cod)):
             if seqsimbo[i] == tabela_cod[z][1][0]:
                 seqbits += bitarray(tabela_cod[z][2])
 
     return seqbits
+
 
 # 3
 
@@ -119,12 +119,14 @@ def descodifica(seqbits, tabela_cod):
 
     return seqbits
 
+
 # 4
 
 """
 Elabore uma função ("escrever") que dada uma sequência de bits (mensagem codiﬁcada) e o nome do ﬁcheiro,
 escreva a sequência de bits para o ﬁcheiro.
 """
+
 
 def escrever(seqbits, nomeficheiro):
     return null
@@ -137,9 +139,10 @@ Elabore uma função ("ler") que dado o nome do ﬁcheiro, leia uma sequência d
 contida no ﬁcheiro.
 """
 
-def ler(nomeficheiro):
 
+def ler(nomeficheiro):
     return seqbits
+
 
 # 6
 
@@ -166,7 +169,6 @@ g) Compare a mensagem descodiﬁcada com a original e veriﬁque que são iguais
 -----------------------MAIN----------------------------
 """
 
-
 # Lê a imagem em níveis de cinzento
 x = cv2.imread("lena.tiff", cv2.IMREAD_GRAYSCALE)
 # Converte a imagem (matriz) numa sequência de números (array)
@@ -178,21 +180,20 @@ h, bins, patches = plt.hist(xi, 256, [0, 256])
 t0 = time()
 tabela_codigo = gera_huffman(h)
 t1 = time()
-print "time:", t1-t0
-
+print "time:", t1 - t0
 
 # Codifica e grava ficheiro
 seq_bit0 = codifica(xi, tabela_codigo)
 
 escrever(seq_bit0, filename)
 t2 = time()
-print "time:", t2-t1
+print "time:", t2 - t1
 
 # Lê ficheiro e descodifica
 seq_bit1 = ler(filename)
-yi = descodifica(seq_bit1 ,tabela_codigo)
+yi = descodifica(seq_bit1, tabela_codigo)
 t3 = time()
-print "time:", t3-t2
+print "time:", t3 - t2
 size_ini = path.getsize("filename original image")
 size_end = path.getsize("filename compressed")
 print "taxa: ", 1. * size_ini / size_end
