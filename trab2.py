@@ -31,42 +31,42 @@ def gera_huffman(freq):
     bits = ["" for y in xrange(len(freq))]
 
     # Cria um array de arrays (numero de ocorrencias,valor, codificação) organizado por ordem crescente
-    dic = sorted(list(t) for t in zip(freq, simbolos, bits))
+    tabela = sorted(list(t) for t in zip(freq, simbolos, bits))
 
     # remove ocorrencias nulas do array
-    while dic[0][0] == 0:
-        dic.remove(dic[0])
+    while tabela[0][0] == 0:
+        tabela.remove(tabela[0])
 
     # implementa uma fila para simular o funcionamento do algoritmo
     p = Queue.PriorityQueue()
     # popula a fila com os valores do array
-    for value in dic:
+    for value in tabela:
         p.put(value)
     # enquanto o fila tiver mais que um nó
     while p.qsize() > 1:
         # extrai os dois nós esquerda e direita com o valor mais pequeno
         l, r = p.get(), p.get()
         # itera no array de valores e nos simbolos dos nós
-        for i in xrange(len(dic)):
+        for i in xrange(len(tabela)):
             for z in xrange(len(l[1])):
                 # se o simbolo no dicionario for igual ao simbolo do nó extraido
-                if dic[i][1][0] == l[1][z]:
+                if tabela[i][1][0] == l[1][z]:
                     # para o no da esquerda guarda o bit 0 na codificação
-                    dic[i][2] += '0'
+                    tabela[i][2] += '0'
             for t in xrange(len(r[1])):
-                if dic[i][1][0] == r[1][t]:
-                    dic[i][2] += '1'
+                if tabela[i][1][0] == r[1][t]:
+                    tabela[i][2] += '1'
 
         p.put([l[0] + r[0], l[1] + r[1]])
 
     # inverte a string com a codificação para representar o percurso da raiz até as folhas
-    for i in xrange(len(dic)):
-        dic[i][2] = dic[i][2][::-1]
+    for i in xrange(len(tabela)):
+        tabela[i][2] = tabela[i][2][::-1]
 
     # imprime a array resultante em formato tabela
-    pprint.pprint(dic)
+    pprint.pprint(tabela)
 
-    return dic
+    return tabela
 
 
 # 2
@@ -77,28 +77,33 @@ retorne uma sequência de bits com a mensagem codiﬁcada.
 """
 
 
-def codifica(seqsimbo, tabela_cod):
+def codifica(mensagem, tabela_cod):
     # Sequencia de bits com a codificação da mensagem e header
-    seqbits = bitarray()
+    seqbits = ""
 
     # segmento de 8 bits com o numero de simbolos activos
-    num_simb_activos = '{0:08b}'.format(len(tabela_codigo))
+    num_simb_activos = '{0:08b}'.format(len(tabela_cod))
 
     # adeiciona o n simb ao header
     seqbits += num_simb_activos
 
+    # dicionario para guardar pares chave valor
+    dic = {}
+
     # itera na tabela de codigo para criar o header
     for r in xrange(len(tabela_cod)):
         # adiciona o simbolo ao header
-        seqbits += '{0:08b}'.format(tabela_codigo[r][1][0])
+        seqbits += '{0:08b}'.format(tabela_cod[r][1][0])
         # adiciona ao header a dim em nº bits resultante da codificação do simbolo
-        seqbits += '{0:06b}'.format(len(tabela_codigo[r][2]))
+        seqbits += '{0:06b}'.format(len(tabela_cod[r][2]))
+        # adiciona ao header a codificação do simbolo
+        seqbits += tabela_cod[r][2]
+        # adiciona valores ao dicionario
+        dic[tabela_cod[r][1][0]] = tabela_cod[r][2]
 
     # itera para criar a mensagem
-    for i in xrange(len(seqsimbo)):
-        for z in xrange(len(tabela_cod)):
-            if seqsimbo[i] == tabela_cod[z][1][0]:
-                seqbits += bitarray(tabela_cod[z][2])
+    for i in xrange(len(mensagem)):
+        seqbits += dic[mensagem[i]]
 
     return seqbits
 
@@ -111,13 +116,21 @@ Elabore uma função ("descodiﬁca") que dada uma sequência de bits (mensagem 
 """
 
 
-def descodifica(seqbits, tabela_cod):
-    seqsimbo = np.zeros(len(tabela_cod))
-    for i in xrange(len(tabela_cod)):
-        if seqsimbo[i] == tabela_cod[i][2]:
-            seqbits += bitarray(tabela_cod[z][2])
+def descodifica(msg_cod):
+    # leitura header
 
-    return seqbits
+    # segmento de 8 bits com o numero de simbolos activos
+    num_simb_activos = int(seq_bit0[0:8], 2)
+
+    # cria array para a mensagem descodificada
+    msg_desc = np.zeros(len(tabela_cod))
+
+
+    for i in xrange(len(tabela_cod)):
+        if msg_desc[i] == tabela_cod[i][2]:
+            msg_cod += bitarray(tabela_cod[z][2])
+
+    return msg_cod
 
 
 # 4
