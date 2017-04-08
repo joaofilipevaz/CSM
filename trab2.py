@@ -1,6 +1,6 @@
 # This Python file uses the following encoding: utf-8
 
-# Trabalho 1 CSM
+# Trabalho 2 CSM
 
 from time import time
 from os import path
@@ -86,14 +86,14 @@ def codifica(mensagem, tabela_cod):
     # bits mensagem
     bits_msg = 0
 
-    # segmento de 8 bits com o numero de simbolos activos
+    # segmento de 8 bits com o numero de simbolos com ocorrencias não nulas
     num_simb_activos = '{0:08b}'.format(len(tabela_cod))
 
-    # adiciona o n simb e ocorrencias ao header
+    # adiciona o n simbolos ao header e incrementa o contador
     seqbits += num_simb_activos
     bits_header += 8
 
-    # dicionario para guardar pares chave valor
+    # dicionario para guardar pares chave(simbolo) valor(codificacao)
     dic = {}
 
     # itera na tabela de codigo para criar o header
@@ -114,9 +114,19 @@ def codifica(mensagem, tabela_cod):
         seqbits += dic[mensagem[i]]
         bits_msg += len(dic[mensagem[i]])
 
-    print "O numero de bits do header é {}".format(bits_header)
-    print "O numero de bits da mensagem é {}".format(bits_msg)
-    print "O numero de bits totais são {}".format(bits_header+bits_msg)
+    print "O numero de bits da mensagem original é {}".format(len(mensagem)*8)
+    print "O numero de bits do header da mensagem codificada é {}".format(bits_header)
+    print "O numero de bits de dados da mensagem codificada (sem header) é {}".format(bits_msg)
+    print "O numero de bits total da mensagem codificada é {}".format(bits_header+bits_msg)
+    print "A dimensão do Ficheiro comprimido é {}% relativamente à dimensão original".format(
+        round((float(bits_header+bits_msg)/float(len(mensagem)*8))*100., 2))
+    saldo_bits = (len(mensagem)*8) - (bits_header + bits_msg)
+    if saldo_bits > 0:
+        print "Através da codificação de Huffman conseguimos 'poupar' {} bits".format(saldo_bits)
+    else:
+        print "Neste caso a codificação de Huffman não foi eficiente e 'gastamos' {} bits".format(abs(saldo_bits))
+    print "Não levando o header em consideração os valores passam para {} e {} respectivamente".format(
+        round((float(bits_msg)/(len(mensagem)*8))*100., 2), (len(mensagem)*8) - bits_msg)
 
     return seqbits
 
