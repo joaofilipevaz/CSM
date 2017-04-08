@@ -9,9 +9,9 @@ import cv2
 import matplotlib.pyplot as plt
 import Queue
 import pprint
+from collections import deque
 
-# biblioteca eficiente para a representação de bits
-from bitarray import bitarray
+
 
 # 1
 
@@ -120,7 +120,50 @@ def descodifica(msg_cod):
     # leitura header
 
     # segmento de 8 bits com o numero de simbolos activos
-    num_simb_activos = int(seq_bit0[0:8], 2)
+    num_simb_activos = int(msg_cod[0:8], 2)
+
+    # dicionario para guardar pares chave valor
+    dic = {}
+
+    deq = deque(msg_cod)
+
+    simbolo = ""
+    l_cod = ""
+    cod = ""
+    count = 0
+
+    while len(deq) > 0:
+        while count < 8:
+            simbolo += deq.popleft()
+            count += 1
+        count = 0
+        simbolo = int(simbolo, 2)
+        while count < 6:
+            l_cod += deq.popleft()
+            count += 1
+        count = 0
+        l_cod = int(l_cod, 2)
+        while count < l_cod:
+            cod += deq.popleft()
+            count += 1
+        count = 0
+        dic[simbolo] = cod
+
+
+
+    # itera na tabela de codigo para criar o header
+    for i in xrange(num_simb_activos)
+        simbolo = int(msg_cod[8*(i+1):16*(i+1)], 2)
+        l_cod = int(msg_cod[16*(i+1):16*(i+1)], 2)
+        dic[] = tabela_cod[i][2]
+
+
+        # adiciona ao header a dim em nº bits resultante da codificação do simbolo
+        seqbits += '{0:06b}'.format(len(tabela_cod[i][2]))
+        # adiciona ao header a codificação do simbolo
+        seqbits += tabela_cod[i][2]
+        # adiciona valores ao dicionario
+        dic[tabela_cod[i][1][0]] = tabela_cod[i][2]
 
     # cria array para a mensagem descodificada
     msg_desc = np.zeros(len(tabela_cod))
@@ -128,7 +171,7 @@ def descodifica(msg_cod):
 
     for i in xrange(len(tabela_cod)):
         if msg_desc[i] == tabela_cod[i][2]:
-            msg_cod += bitarray(tabela_cod[z][2])
+            msg_cod += tabela_cod[z][2]
 
     return msg_cod
 
