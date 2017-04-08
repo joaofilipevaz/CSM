@@ -9,8 +9,6 @@ import cv2
 import matplotlib.pyplot as plt
 import Queue
 import pprint
-from collections import deque
-
 
 
 # 1
@@ -78,14 +76,22 @@ retorne uma sequência de bits com a mensagem codiﬁcada.
 
 
 def codifica(mensagem, tabela_cod):
-    # Sequencia de bits com a codificação da mensagem e header
+
+    # Sequencia de bits com a codificação da mensagem
     seqbits = ""
+
+    # bits do Header
+    bits_header = 0
+
+    # bits mensagem
+    bits_msg = 0
 
     # segmento de 8 bits com o numero de simbolos activos
     num_simb_activos = '{0:08b}'.format(len(tabela_cod))
 
-    # adeiciona o n simb ao header
+    # adiciona o n simb e ocorrencias ao header
     seqbits += num_simb_activos
+    bits_header += 8
 
     # dicionario para guardar pares chave valor
     dic = {}
@@ -100,10 +106,17 @@ def codifica(mensagem, tabela_cod):
         seqbits += tabela_cod[r][2]
         # adiciona valores ao dicionario
         dic[tabela_cod[r][1][0]] = tabela_cod[r][2]
+        # incrementa contador bits
+        bits_header += 8 + 6 + len(tabela_cod[r][2])
 
     # itera para criar a mensagem
     for i in xrange(len(mensagem)):
         seqbits += dic[mensagem[i]]
+        bits_msg += len(dic[mensagem[i]])
+
+    print "O numero de bits do header é {}".format(bits_header)
+    print "O numero de bits da mensagem é {}".format(bits_msg)
+    print "O numero de bits totais são {}".format(bits_header+bits_msg)
 
     return seqbits
 
@@ -117,63 +130,49 @@ Elabore uma função ("descodiﬁca") que dada uma sequência de bits (mensagem 
 
 
 def descodifica(msg_cod):
-    # leitura header
 
-    # segmento de 8 bits com o numero de simbolos activos
-    num_simb_activos = int(msg_cod[0:8], 2)
-
-    # dicionario para guardar pares chave valor
+    # dicionario para reconstruir os pares chave valor
     dic = {}
 
-    deq = deque(msg_cod)
+    # segmento de 8 bits com o numero de simbolos activos e o numero de ocorrencias dos simbolos
+    num_simb_activos = int(msg_cod[0:8], 2)
 
-    simbolo = ""
-    l_cod = ""
-    cod = ""
+    # slice da mensagem para excluir o oito bits lidos
+    msg_cod = msg_cod[8:]
+
+    # sequencia de simbolos para output
+    seq_simbolos = []
+
+    # variavel temporaria
     count = 0
 
-    while len(deq) > 0:
-        while count < 8:
-            simbolo += deq.popleft()
-            count += 1
-        count = 0
-        simbolo = int(simbolo, 2)
-        while count < 6:
-            l_cod += deq.popleft()
-            count += 1
-        count = 0
-        l_cod = int(l_cod, 2)
-        while count < l_cod:
-            cod += deq.popleft()
-            count += 1
-        count = 0
-        dic[simbolo] = cod
+    # leitura do header
+    for i in xrange(num_simb_activos):
+        # lê o simbolo, neste caso um numero
+        simbolo = int(msg_cod[0:8], 2)
+        # lê o comprimento do codigo
+        l_cod = int(msg_cod[8:14], 2)
+        # retira a codificação do simbolo
+        cod = msg_cod[14:(14 + l_cod)]
+        # adiciona os valores ao dicionario
+        dic[cod] = simbolo
+        # conta os bits utilizados
+        count += 8 + 6 + l_cod
 
+    # faz o slice da mensagem para excluir a parte do header
+    msg_cod = msg_cod[count:]
 
+    # lê os bits codificados enquanto houver dados para leitura
+    while msg_cod:
+        for k in dic:
+            # avalia o prefixo inicial de acordo com a chave do dicionario
+            if msg_cod.startswith(k):
+                # quando encontramos a chave correta adicionamos o valor ao array de simbolos
+                seq_simbolos.append(dic[k])
+                # e slice da mensagem de bits para lermos sempre a partir do inicio
+                msg_cod = msg_cod[len(k):]
 
-    # itera na tabela de codigo para criar o header
-    for i in xrange(num_simb_activos)
-        simbolo = int(msg_cod[8*(i+1):16*(i+1)], 2)
-        l_cod = int(msg_cod[16*(i+1):16*(i+1)], 2)
-        dic[] = tabela_cod[i][2]
-
-
-        # adiciona ao header a dim em nº bits resultante da codificação do simbolo
-        seqbits += '{0:06b}'.format(len(tabela_cod[i][2]))
-        # adiciona ao header a codificação do simbolo
-        seqbits += tabela_cod[i][2]
-        # adiciona valores ao dicionario
-        dic[tabela_cod[i][1][0]] = tabela_cod[i][2]
-
-    # cria array para a mensagem descodificada
-    msg_desc = np.zeros(len(tabela_cod))
-
-
-    for i in xrange(len(tabela_cod)):
-        if msg_desc[i] == tabela_cod[i][2]:
-            msg_cod += tabela_cod[z][2]
-
-    return msg_cod
+    return seq_simbolos
 
 
 # 4
@@ -185,7 +184,10 @@ escreva a sequência de bits para o ﬁcheiro.
 
 
 def escrever(seqbits, nomeficheiro):
-    return null
+    f = open("{}".format(nomeficheiro), "w+")
+    file_array = np.fromstring(seqbits, dtype=np.uint8)
+    file_array.tofile(f)
+    f.close()
 
 
 # 5
@@ -197,6 +199,10 @@ contida no ﬁcheiro.
 
 
 def ler(nomeficheiro):
+    f = open("{}".format(nomeficheiro))
+    file_array = np.fromfile(f, dtype=np.uint8)
+    seqbits = np.array2string(file_array)
+    f.close()
     return seqbits
 
 
@@ -224,9 +230,12 @@ g) Compare a mensagem descodiﬁcada com a original e veriﬁque que são iguais
 """
 -----------------------MAIN----------------------------
 """
-
+files = np.array(['Lena.tiff', 'ubuntu_server_guide.pdf', 'ubuntu_server_guide.txt', 'HenryMancini-PinkPanther.mp3',
+                 'HenryMancini-PinkPanther.mid', 'ecg.txt'])
+# x = np.fromfile("lena.tiff", 'uint8')
 # Lê a imagem em níveis de cinzento
 x = cv2.imread("lena.tiff", cv2.IMREAD_GRAYSCALE)
+cv2.imwrite('lena_gray_scale.bmp', x)
 # Converte a imagem (matriz) numa sequência de números (array)
 xi = x.ravel()
 # Calcula o histogram
@@ -241,7 +250,7 @@ print "time:", t1 - t0
 # Codifica e grava ficheiro
 seq_bit0 = codifica(xi, tabela_codigo)
 
-escrever(seq_bit0, filename)
+escrever(seq_bit0, "teste.txt")
 t2 = time()
 print "time:", t2 - t1
 
