@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt
 import Queue
 import pprint
 
-
 # 1
 
 """
@@ -76,7 +75,6 @@ retorne uma sequência de bits com a mensagem codiﬁcada.
 
 
 def codifica(mensagem, tabela_cod):
-
     # Sequencia de bits com a codificação da mensagem
     seqbits = ""
 
@@ -114,19 +112,19 @@ def codifica(mensagem, tabela_cod):
         seqbits += dic[mensagem[i]]
         bits_msg += len(dic[mensagem[i]])
 
-    print "O numero de bits da mensagem original é {}".format(len(mensagem)*8)
+    print "O numero de bits da mensagem original é {}".format(len(mensagem) * 8)
     print "O numero de bits do header da mensagem codificada é {}".format(bits_header)
     print "O numero de bits de dados da mensagem codificada (sem header) é {}".format(bits_msg)
-    print "O numero de bits total da mensagem codificada é {}".format(bits_header+bits_msg)
+    print "O numero de bits total da mensagem codificada é {}".format(bits_header + bits_msg)
     print "A dimensão do Ficheiro comprimido é {}% relativamente à dimensão original".format(
-        round((float(bits_header+bits_msg)/float(len(mensagem)*8))*100., 2))
-    saldo_bits = (len(mensagem)*8) - (bits_header + bits_msg)
+        round((float(bits_header + bits_msg) / float(len(mensagem) * 8)) * 100., 2))
+    saldo_bits = (len(mensagem) * 8) - (bits_header + bits_msg)
     if saldo_bits > 0:
         print "Através da codificação de Huffman conseguimos 'poupar' {} bits".format(saldo_bits)
     else:
         print "Neste caso a codificação de Huffman não foi eficiente e 'gastamos' {} bits".format(abs(saldo_bits))
     print "Não levando o header em consideração os valores passam para {} e {} respectivamente".format(
-        round((float(bits_msg)/(len(mensagem)*8))*100., 2), (len(mensagem)*8) - bits_msg)
+        round((float(bits_msg) / (len(mensagem) * 8)) * 100., 2), (len(mensagem) * 8) - bits_msg)
 
     return seqbits
 
@@ -140,7 +138,6 @@ Elabore uma função ("descodiﬁca") que dada uma sequência de bits (mensagem 
 
 
 def descodifica(msg_cod):
-
     # dicionario para reconstruir os pares chave valor
     dic = {}
 
@@ -225,54 +222,78 @@ Texto: Use os ﬁcheiros “ubuntu_server_guide.pdf” e “ubuntu_server_guide.
 Áudio: Use o ﬁcheiro “HenryMancini-PinkPanther.mp3”.
 Midi: Use o ﬁcheiro “HenryMancini-PinkPanther.mid”.
 ECG: Eletrocardiograma - use o ﬁcheiro “ecg.txt”.
-a) Gere o código usando a função realizada no ponto 1. Meça o tempo que demora a função.
-b) Meça a entropia e o número médio de bits por símbolo. Calcule a eﬁciência.
-c) Faça a codiﬁcação da mensagem contida no ﬁcheiro (usando a função realizada no ponto 2). Meça o tempo
-que a função demora a fazer a codiﬁcação.
-d) Grave um ﬁcheiro com a mensagem codiﬁcada, usando a função realizada no ponto 4. Veja o tamanho do
-ﬁcheiro.
-e) Leia do ﬁcheiro o conjunto de bits, usando a função realizada no ponto 5.
-f) Faça a descodiﬁcação da mensagem (usando a função realizada no ponto 3.) Meça o tempo que a função
-demora a fazer a descodiﬁcação.
-g) Compare a mensagem descodiﬁcada com a original e veriﬁque que são iguais (erro nulo).
 """
 
-"""
------------------------MAIN----------------------------
-"""
-files = np.array(['Lena.tiff', 'ubuntu_server_guide.pdf', 'ubuntu_server_guide.txt', 'HenryMancini-PinkPanther.mp3',
-                 'HenryMancini-PinkPanther.mid', 'ecg.txt'])
-# x = np.fromfile("lena.tiff", 'uint8')
-# Lê a imagem em níveis de cinzento
-x = cv2.imread("lena.tiff", cv2.IMREAD_GRAYSCALE)
-cv2.imwrite('lena_gray_scale.bmp', x)
-# Converte a imagem (matriz) numa sequência de números (array)
-xi = x.ravel()
-# Calcula o histogram
-h, bins, patches = plt.hist(xi, 256, [0, 256])
+filename_array = np.array(['lena_gray_scale.bmp', 'ubuntu_server_guide.pdf', 'ubuntu_server_guide.txt',
+                           'HenryMancini-PinkPanther.mp3', 'HenryMancini-PinkPanther.mid', 'ecg.txt'])
 
-# Gera o código de Huffman
-t0 = time()
-tabela_codigo = gera_huffman(h)
-t1 = time()
-print "time:", t1 - t0
 
-# Codifica e grava ficheiro
-seq_bit0 = codifica(xi, tabela_codigo)
+def main(files):
+    # a) Gere o código usando a função realizada no ponto 1. Meça o tempo que demora a função.
 
-escrever(seq_bit0, "teste.txt")
-t2 = time()
-print "time:", t2 - t1
+    for f in files:
+        print "========================================================================================================"
+        print "================================Analise_Ficheiro_{}================================" \
+              "=============".format(f)
+        print
 
-# Lê ficheiro e descodifica
-seq_bit1 = ler(filename)
-yi = descodifica(seq_bit1, tabela_codigo)
-t3 = time()
-print "time:", t3 - t2
-size_ini = path.getsize("filename original image")
-size_end = path.getsize("filename compressed")
-print "taxa: ", 1. * size_ini / size_end
-plt.show()
-cv2.waitKey(0)
-plt.close("all")
-cv2.destroyAllWindows()
+        # le o ficheiro especifico
+        x = np.fromfile("samples/{}".format(f), 'uint8')
+
+        # Calcula o histogram
+        h, bins, patches = plt.hist(x, 256, [0, 256])
+
+        # tempo inicial
+        t0 = time()
+
+        # Gera o código de Huffman
+        tabela_codigo = gera_huffman(h)
+
+        t1 = time()
+        print "O tempo necessário para gerar o Codigo de Huffman foi de {} segundos".format(round(t1 - t0, 3))
+
+        # b) Meça a entropia e o número médio de bits por símbolo. Calcule a eﬁciência.
+
+        # c) Faça a codiﬁcação da mensagem contida no ﬁcheiro (usando a função realizada no ponto 2). Meça o tempo
+        # que a função demora a fazer a codiﬁcação.
+
+        seq_bit0 = codifica(x, tabela_codigo)
+
+        t2 = time()
+
+        print "O tempo necessário para realizar a codificação foi de {} segundos".format(round(t2 - t1, 3))
+
+        # d) Grave um ﬁcheiro com a mensagem codiﬁcada, usando a função realizada no ponto 4. Veja o tamanho do ﬁcheiro.
+
+        escrever(seq_bit0, "{}.huf".format(path.splitext(f)[0]))
+
+        # e) Leia do ﬁcheiro o conjunto de bits, usando a função realizada no ponto 5.
+
+        seq_bit1 = ler("{}.huf".format(path.splitext(f)[0]))
+
+        # f) Faça a descodiﬁcação da mensagem (usando a função realizada no ponto 3.) Meça o tempo que a função
+        # demora a fazer a descodiﬁcação.
+
+        yi = descodifica(seq_bit1)
+
+        t3 = time()
+
+        print "O tempo necessário para realizar a descodificação foi de {} segundos".format(round(t3 - t2, 3))
+
+        # g) Compare a mensagem descodiﬁcada com a original e veriﬁque que são iguais (erro nulo).
+
+        size_ini = path.getsize("{}".format(f))
+        size_end = path.getsize("{}.huf".format(path.splitext(f)[0]))
+        print "taxa: ", 1. * size_ini / size_end
+        plt.show()
+        cv2.waitKey(0)
+        plt.close("all")
+        cv2.destroyAllWindows()
+
+        # Lê a imagem em níveis de cinzento
+        # x = cv2.imread("samples/lena.tiff", cv2.IMREAD_GRAYSCALE)
+        # cv2.imwrite('samples/lena_gray_scale.bmp', x)
+        # Converte a imagem (matriz) numa sequência de números (array)
+        # xi = x.ravel()
+
+main(filename_array)
