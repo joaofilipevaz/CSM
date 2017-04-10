@@ -191,9 +191,27 @@ escreva a sequência de bits para o ﬁcheiro.
 
 
 def escrever(seqbits, nomeficheiro):
+
+    array_bytes = bytearray()
+
+    # assegura que o numero de bits é multiplo de 8
+    if (len(seqbits) % 8) != 0:
+        if seqbits[-1] == '0':
+            seqbits += '1' * (8 - (len(seqbits) % 8))
+        else:
+            seqbits += '0' * (8 - (len(seqbits) % 8))
+
+    # converte os bits para bytes
+    for i in range(len(seqbits) / 8):
+        substring = seqbits[i * 8: i * 8 + 8]
+        array_bytes.append(int(substring, base=2))
+
+    # inicializa o ficheiro
     f = open("{}".format(nomeficheiro), "w+")
-    file_array = np.fromstring(seqbits, dtype=np.uint8)
-    file_array.tofile(f)
+
+    # escreve os bytes para ficheiro
+    for byte in bytes(array_bytes):
+        f.write(byte)
     f.close()
 
 
@@ -274,7 +292,7 @@ def main(files):
         # f) Faça a descodiﬁcação da mensagem (usando a função realizada no ponto 3.) Meça o tempo que a função
         # demora a fazer a descodiﬁcação.
 
-        yi = descodifica(seq_bit1)
+        yi = descodifica(seq_bit0)
 
         t3 = time()
 
