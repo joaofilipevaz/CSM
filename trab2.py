@@ -152,8 +152,6 @@ def descodifica(msg_cod):
 
     # leitura do header
     for i in xrange(num_simb_activos):
-        # variavel temporaria
-        count = 0
         # lê o simbolo, neste caso um numero
         simbolo = int(msg_cod[0:8], 2)
         # lê o comprimento do codigo
@@ -162,15 +160,11 @@ def descodifica(msg_cod):
         cod = msg_cod[14:(14 + l_cod)]
         # adiciona os valores ao dicionario
         dic[cod] = simbolo
-        # conta os bits utilizados
-        count += 8 + 6 + l_cod
         # faz o slice da mensagem para excluir a parte do header
-        msg_cod = msg_cod[count:]
-
-
+        msg_cod = msg_cod[(8 + 6 + l_cod):]
 
     # lê os bits codificados enquanto houver dados para leitura
-    while msg_cod:
+    while len(msg_cod) != 0:
         for k in dic:
             # avalia o prefixo inicial de acordo com a chave do dicionario
             if msg_cod.startswith(k):
@@ -179,7 +173,7 @@ def descodifica(msg_cod):
                 # e slice da mensagem de bits para lermos sempre a partir do inicio
                 msg_cod = msg_cod[len(k):]
 
-    return seq_simbolos
+    return np.array(seq_simbolos, np.uint8)
 
 
 # 4
@@ -339,6 +333,9 @@ def main(files):
         print "O tempo necessário para realizar a descodificação foi de {} segundos".format(round(t3 - t2, 3))
 
         # g) Compare a mensagem descodiﬁcada com a original e veriﬁque que são iguais (erro nulo).
+
+        if np.array_equal(x, yi):
+            print "O processo de codificação/descodificação foi realizado sem erro já que os arrays são Iguais"
 
         print "========================================================================================================"
         print "========================================================================================================"
