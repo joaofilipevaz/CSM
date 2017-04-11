@@ -85,7 +85,7 @@ def codifica(mensagem, tabela_cod):
     bits_msg = 0
 
     # segmento de 8 bits com o numero de simbolos com ocorrencias não nulas
-    num_simb_activos = '{0:08b}'.format(len(tabela_cod))
+    num_simb_activos = '{0:08b}'.format(len(tabela_cod)-1)
 
     # adiciona o n simbolos ao header e incrementa o contador
     seqbits += num_simb_activos
@@ -142,7 +142,7 @@ def descodifica(msg_cod):
     dic = {}
 
     # segmento de 8 bits com o numero de simbolos activos e o numero de ocorrencias dos simbolos
-    num_simb_activos = int(msg_cod[0:8], 2)
+    num_simb_activos = int(msg_cod[0:8], 2)+1
 
     # slice da mensagem para excluir o oito bits lidos
     msg_cod = msg_cod[8:]
@@ -150,11 +150,10 @@ def descodifica(msg_cod):
     # sequencia de simbolos para output
     seq_simbolos = []
 
-    # variavel temporaria
-    count = 0
-
     # leitura do header
     for i in xrange(num_simb_activos):
+        # variavel temporaria
+        count = 0
         # lê o simbolo, neste caso um numero
         simbolo = int(msg_cod[0:8], 2)
         # lê o comprimento do codigo
@@ -165,9 +164,10 @@ def descodifica(msg_cod):
         dic[cod] = simbolo
         # conta os bits utilizados
         count += 8 + 6 + l_cod
+        # faz o slice da mensagem para excluir a parte do header
+        msg_cod = msg_cod[count:]
 
-    # faz o slice da mensagem para excluir a parte do header
-    msg_cod = msg_cod[count:]
+
 
     # lê os bits codificados enquanto houver dados para leitura
     while msg_cod:
@@ -202,8 +202,9 @@ def escrever(seqbits, nomeficheiro):
     if n_bits_livres != 0:
         # enche o resto do byte de 1s
         seqbits += '1' * (8 - n_bits_livres)
-        # insere informação sobre a quantidade de bits de stuffing para permitir a sua remoçao na leitura
-        seqbits += '{0:08b}'.format((8 - n_bits_livres))
+
+    # insere informação sobre a quantidade de bits de stuffing para permitir a sua remoçao na leitura
+    seqbits += '{0:08b}'.format((8 - n_bits_livres))
 
     # converte os bits para bytes
     for i in range(len(seqbits) / 8):
@@ -347,7 +348,7 @@ def main(files):
 
         # Lê a imagem em níveis de cinzento
         # x = cv2.imread("samples/lena.tiff", cv2.IMREAD_GRAYSCALE)
-        # cv2.imwrite('samples/lena_gray_scale.bmp', x)
+        # cv2.imwrite('samples/lena_gray_scale.tiff', x)
         # Converte a imagem (matriz) numa sequência de números (array)
         # xi = x.ravel()
 
