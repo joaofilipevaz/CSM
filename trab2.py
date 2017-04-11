@@ -351,7 +351,6 @@ def main(files):
         # Converte a imagem (matriz) numa sequência de números (array)
         # xi = x.ravel()
 
-
         plt.show()
         cv2.waitKey(0)
         plt.close("all")
