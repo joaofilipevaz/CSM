@@ -60,8 +60,13 @@ def gera_huffman(freq):
     for i in xrange(len(tabela)):
         tabela[i][2] = tabela[i][2][::-1]
 
+    print "=========================================Tabela Codigo=================================================="
     # imprime a array resultante em formato tabela
-    pprint.pprint(tabela)
+    print "Peso\tSimbolo\tCodificação"
+    for t in range(len(tabela)):
+        print "%-6s\t%-4s\t%-4s" % (tabela[t][0], tabela[t][1][0], tabela[t][2])
+    #pprint.pprint(tabela)
+    print "========================================================================================================"
 
     return tabela
 
@@ -274,8 +279,7 @@ def main(files):
     for f in files:
         print "========================================================================================================"
         print "================================Analise_Ficheiro_{}================================" \
-              "=============".format(f)
-        print
+              "=======".format(f)
 
         # le o ficheiro especifico
         x = np.fromfile("samples/{}".format(f), 'uint8')
@@ -348,10 +352,9 @@ def main(files):
         # cv2.imwrite('samples/lena_gray_scale.tiff', x)
         # Converte a imagem (matriz) numa sequência de números (array)
         # xi = x.ravel()
-
-        plt.show()
-        cv2.waitKey(0)
-        plt.close("all")
-        cv2.destroyAllWindows()
+        # plt.show()
+        # cv2.waitKey(0)
+        # plt.close("all")
+        # cv2.destroyAllWindows()
 
 main(filename_array)
