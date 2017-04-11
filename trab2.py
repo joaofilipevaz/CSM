@@ -192,27 +192,37 @@ escreva a sequência de bits para o ﬁcheiro.
 
 def escrever(seqbits, nomeficheiro):
 
+    # array de bytes que irá ser escrito para ficheiro
     array_bytes = bytearray()
 
-    # assegura que o numero de bits é multiplo de 8
-    if (len(seqbits) % 8) != 0:
-        if seqbits[-1] == '0':
-            seqbits += '1' * (8 - (len(seqbits) % 8))
-        else:
-            seqbits += '0' * (8 - (len(seqbits) % 8))
+    # assegura que o numero de bits é multiplo de 8 adicionando os bits necessarios
+    # avalia o modulo da divisao por 8 para saber quantos bits estão "livres"
+    n_bits_livres = len(seqbits) % 8
+
+    if n_bits_livres != 0:
+        # enche o resto do byte de 1s
+        seqbits += '1' * (8 - n_bits_livres)
+        # insere informação sobre a quantidade de bits de stuffing para permitir a sua remoçao na leitura
+        seqbits += '{0:08b}'.format((8 - n_bits_livres))
 
     # converte os bits para bytes
     for i in range(len(seqbits) / 8):
+        # segmento de 8 bits = 1 byte
         substring = seqbits[i * 8: i * 8 + 8]
+        # adiciona o segmento ao array
         array_bytes.append(int(substring, base=2))
 
-    # inicializa o ficheiro
-    f = open("{}".format(nomeficheiro), "w+")
+    # inicializa o ficheiro em modo de escrita
+    f = open("{}".format(nomeficheiro), "wb")
 
     # escreve os bytes para ficheiro
     for byte in bytes(array_bytes):
         f.write(byte)
+
+    # fecha o stream de escrita
     f.close()
+
+    print "Foram escritos {} bits para ficheiro".format(len(seqbits))
 
 
 # 5
@@ -224,10 +234,27 @@ contida no ﬁcheiro.
 
 
 def ler(nomeficheiro):
-    f = open("{}".format(nomeficheiro))
-    file_array = np.fromfile(f, dtype=np.uint8)
-    seqbits = np.array2string(file_array)
-    f.close()
+
+    # Sequencia de bits com a codificação da mensagem
+    seqbits = ""
+
+    # with garante tratamento de exepções e close integrado
+    with open("{}".format(nomeficheiro), "rb") as f:
+        # le o byte
+        byte = f.read(1)
+        while byte:
+            # adciona os bits correspondentes do byte à seq de bits
+            seqbits += '{0:08b}'.format(ord(byte))
+            byte = f.read(1)
+
+    print "Foram lidos {} bits do ficheiro".format(len(seqbits))
+
+    # verifica quantos bits foram utilizados para stuffing
+    bits_stuffing = int(seqbits[-8:], 2)
+
+    # remove o campo de informação sobre os bits de stuffing e esses bits
+    seqbits = seqbits[:-8-bits_stuffing]
+
     return seqbits
 
 
@@ -285,6 +312,18 @@ def main(files):
 
         escrever(seq_bit0, "{}.huf".format(path.splitext(f)[0]))
 
+        size_ini = path.getsize("samples/{}".format(f))
+
+        print "A dimensão do ficheiro original é de {} Kb".format(round(size_ini/1024., 2))
+
+        size_end = path.getsize("{}.huf".format(path.splitext(f)[0]))
+
+        print "A dimensão do ficheiro codificado é de {} Kb".format(round(size_end/1024., 2))
+
+        print "A taxa de compressão conseguida foi de {}".format(1. * size_ini / size_end)
+
+        print "O saldo da compressão foi de {} Kb".format(round((size_ini - size_end)/1024., 2))
+
         # e) Leia do ﬁcheiro o conjunto de bits, usando a função realizada no ponto 5.
 
         seq_bit1 = ler("{}.huf".format(path.splitext(f)[0]))
@@ -292,7 +331,7 @@ def main(files):
         # f) Faça a descodiﬁcação da mensagem (usando a função realizada no ponto 3.) Meça o tempo que a função
         # demora a fazer a descodiﬁcação.
 
-        yi = descodifica(seq_bit0)
+        yi = descodifica(seq_bit1)
 
         t3 = time()
 
@@ -300,18 +339,22 @@ def main(files):
 
         # g) Compare a mensagem descodiﬁcada com a original e veriﬁque que são iguais (erro nulo).
 
-        size_ini = path.getsize("{}".format(f))
-        size_end = path.getsize("{}.huf".format(path.splitext(f)[0]))
-        print "taxa: ", 1. * size_ini / size_end
-        plt.show()
-        cv2.waitKey(0)
-        plt.close("all")
-        cv2.destroyAllWindows()
+        print "========================================================================================================"
+        print "========================================================================================================"
+        print "========================================================================================================"
+        print
+        print
 
         # Lê a imagem em níveis de cinzento
         # x = cv2.imread("samples/lena.tiff", cv2.IMREAD_GRAYSCALE)
         # cv2.imwrite('samples/lena_gray_scale.bmp', x)
         # Converte a imagem (matriz) numa sequência de números (array)
         # xi = x.ravel()
+
+
+        plt.show()
+        cv2.waitKey(0)
+        plt.close("all")
+        cv2.destroyAllWindows()
 
 main(filename_array)
