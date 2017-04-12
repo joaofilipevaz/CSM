@@ -8,7 +8,6 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 import Queue
-import pprint
 
 # 1
 
@@ -65,7 +64,6 @@ def gera_huffman(freq):
     print "Peso\tSimbolo\tCodificação"
     for t in range(len(tabela)):
         print "%-6s\t%-4s\t%-4s" % (tabela[t][0], tabela[t][1][0], tabela[t][2])
-    #pprint.pprint(tabela)
     print "========================================================================================================"
 
     return tabela
