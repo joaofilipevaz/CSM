@@ -275,8 +275,8 @@ Midi: Use o ﬁcheiro “HenryMancini-PinkPanther.mid”.
 ECG: Eletrocardiograma - use o ﬁcheiro “ecg.txt”.
 """
 
-filename_array = np.array(['lena_gray_scale.bmp', 'ubuntu_server_guide.pdf', 'ubuntu_server_guide.txt',
-                           'HenryMancini-PinkPanther.mp3', 'HenryMancini-PinkPanther.mid', 'ecg.txt'])
+filename_array = np.array(['HenryMancini-PinkPanther.mid', 'ecg.txt', 'lena_gray_scale.bmp', 'ubuntu_server_guide.txt',
+                           'ubuntu_server_guide.pdf', 'HenryMancini-PinkPanther.mp3'])
 
 
 def main(files):
@@ -380,6 +380,11 @@ def main(files):
         if np.array_equal(x, yi):
             print "O processo de codificação/descodificação foi realizado sem erro já que a mensagem descodificada " \
                   "e a mensagem original são Iguais"
+
+            # escreve a informação para um ficheiro de modo a averiguarmos o seu correcto funcionamento
+            yi.tofile("{}-desc{}".format(path.splitext(f)[0], path.splitext(f)[1]))
+        else:
+            print "ERRO --> Existem erros entra a mensagem original e a descodificada"
 
         print "========================================================================================================"
         print "========================================================================================================"
