@@ -1,11 +1,12 @@
 # This Python file uses the following encoding: utf-8
 
 # Trabalho 2 CSM
+# João Filipe Vaz - 40266
+# João Ventura - 38950
 
 from time import time
 from os import path
 import numpy as np
-import cv2
 import matplotlib.pyplot as plt
 import Queue
 
@@ -23,6 +24,7 @@ códigos pretendidos.
 def gera_huffman(freq):
     # simbolos do algoritmo - neste caso uma gama de valores numa lista de listas
     simbolos = [[i] for i in xrange(len(freq))]
+
     # String vazia para guardar os bits resultantes da codificacao
     bits = ["" for y in xrange(len(freq))]
 
@@ -35,18 +37,24 @@ def gera_huffman(freq):
 
     # implementa uma fila para simular o funcionamento do algoritmo
     p = Queue.PriorityQueue()
+
     # popula a fila com os valores do array
     for value in tabela:
         p.put(value)
+
     # enquanto o fila tiver mais que um nó
     while p.qsize() > 1:
+
         # extrai os dois nós esquerda e direita com o valor mais pequeno
         l, r = p.get(), p.get()
+
         # itera no array de valores e nos simbolos dos nós
         for i in xrange(len(tabela)):
             for z in xrange(len(l[1])):
+
                 # se o simbolo no dicionario for igual ao simbolo do nó extraido
                 if tabela[i][1][0] == l[1][z]:
+
                     # para o no da esquerda guarda o bit 0 na codificação
                     tabela[i][2] += '0'
             for t in xrange(len(r[1])):
@@ -272,12 +280,15 @@ filename_array = np.array(['lena_gray_scale.bmp', 'ubuntu_server_guide.pdf', 'ub
 
 
 def main(files):
-    # a) Gere o código usando a função realizada no ponto 1. Meça o tempo que demora a função.
 
     for f in files:
         print "========================================================================================================"
         print "================================Analise_Ficheiro_{}================================" \
               "=======".format(f)
+
+        """
+        a) Gere o código usando a função realizada no ponto 1. Meça o tempo que demora a função.
+        """
 
         # le o ficheiro especifico
         x = np.fromfile("samples/{}".format(f), 'uint8')
@@ -294,10 +305,32 @@ def main(files):
         t1 = time()
         print "O tempo necessário para gerar o Codigo de Huffman foi de {} segundos".format(round(t1 - t0, 3))
 
-        # b) Meça a entropia e o número médio de bits por símbolo. Calcule a eﬁciência.
+        """
+        b) Meça a entropia e o número médio de bits por símbolo. Calcule a eﬁciência.
+        """
 
-        # c) Faça a codiﬁcação da mensagem contida no ﬁcheiro (usando a função realizada no ponto 2). Meça o tempo
-        # que a função demora a fazer a codiﬁcação.
+        # entropia
+        hx = 0
+
+        # numero médio de bits por simbolo
+        l = 0
+
+        for i in xrange(len(tabela_codigo)):
+            prob = tabela_codigo[i][0]/len(x)
+            hx += prob*np.log2(1/prob)
+            l += prob*len(tabela_codigo[i][2])
+
+        # Eficiencia do codigo
+        efic = hx/l
+
+        print "A Entropia é de {} bits/simbolo".format(hx)
+        print "O numero médio de bits por simbolo é de {}".format(l)
+        print "A efficiencia do codigo é {}".format(efic)
+
+        """
+        c) Faça a codiﬁcação da mensagem contida no ﬁcheiro (usando a função realizada no ponto 2). Meça o tempo
+        que a função demora a fazer a codiﬁcação.
+        """
 
         seq_bit0 = codifica(x, tabela_codigo)
 
@@ -305,15 +338,17 @@ def main(files):
 
         print "O tempo necessário para realizar a codificação foi de {} segundos".format(round(t2 - t1, 3))
 
-        # d) Grave um ﬁcheiro com a mensagem codiﬁcada, usando a função realizada no ponto 4. Veja o tamanho do ﬁcheiro.
+        """
+        d) Grave um ﬁcheiro com a mensagem codiﬁcada, usando a função realizada no ponto 4. Veja o tamanho do ﬁcheiro.
+        """
 
-        escrever(seq_bit0, "{}.huf".format(path.splitext(f)[0]))
+        escrever(seq_bit0, "{}.huf".format(f))
 
         size_ini = path.getsize("samples/{}".format(f))
 
         print "A dimensão do ficheiro original é de {} Kb".format(round(size_ini/1024., 2))
 
-        size_end = path.getsize("{}.huf".format(path.splitext(f)[0]))
+        size_end = path.getsize("{}.huf".format(f))
 
         print "A dimensão do ficheiro codificado é de {} Kb".format(round(size_end/1024., 2))
 
@@ -321,12 +356,16 @@ def main(files):
 
         print "O saldo da compressão foi de {} Kb".format(round((size_ini - size_end)/1024., 2))
 
-        # e) Leia do ﬁcheiro o conjunto de bits, usando a função realizada no ponto 5.
+        """
+        e) Leia do ﬁcheiro o conjunto de bits, usando a função realizada no ponto 5.
+        """
 
-        seq_bit1 = ler("{}.huf".format(path.splitext(f)[0]))
+        seq_bit1 = ler("{}.huf".format(f))
 
-        # f) Faça a descodiﬁcação da mensagem (usando a função realizada no ponto 3.) Meça o tempo que a função
-        # demora a fazer a descodiﬁcação.
+        """
+        f) Faça a descodiﬁcação da mensagem (usando a função realizada no ponto 3.) Meça o tempo que a função
+        demora a fazer a descodiﬁcação.
+        """
 
         yi = descodifica(seq_bit1)
 
@@ -334,25 +373,18 @@ def main(files):
 
         print "O tempo necessário para realizar a descodificação foi de {} segundos".format(round(t3 - t2, 3))
 
-        # g) Compare a mensagem descodiﬁcada com a original e veriﬁque que são iguais (erro nulo).
+        """
+        g) Compare a mensagem descodiﬁcada com a original e veriﬁque que são iguais (erro nulo).
+        """
 
         if np.array_equal(x, yi):
-            print "O processo de codificação/descodificação foi realizado sem erro já que os arrays são Iguais"
+            print "O processo de codificação/descodificação foi realizado sem erro já que a mensagem descodificada " \
+                  "e a mensagem original são Iguais"
 
         print "========================================================================================================"
         print "========================================================================================================"
         print "========================================================================================================"
         print
         print
-
-        # Lê a imagem em níveis de cinzento
-        # x = cv2.imread("samples/lena.tiff", cv2.IMREAD_GRAYSCALE)
-        # cv2.imwrite('samples/lena_gray_scale.tiff', x)
-        # Converte a imagem (matriz) numa sequência de números (array)
-        # xi = x.ravel()
-        # plt.show()
-        # cv2.waitKey(0)
-        # plt.close("all")
-        # cv2.destroyAllWindows()
 
 main(filename_array)
