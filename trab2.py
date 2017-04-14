@@ -303,7 +303,7 @@ def main(files):
         tabela_codigo = gera_huffman(h)
 
         t1 = time()
-        print "O tempo necessário para gerar o Codigo de Huffman foi de {} segundos".format(round(t1 - t0, 3))
+        print "O tempo necessário para gerar o código de Huffman foi de {} segundos".format(round(t1 - t0, 3))
 
         """
         b) Meça a entropia e o número médio de bits por símbolo. Calcule a eﬁciência.
@@ -325,7 +325,7 @@ def main(files):
 
         print "A Entropia é de {} bits/simbolo".format(hx)
         print "O numero médio de bits por simbolo é de {}".format(l)
-        print "A efficiencia do codigo é {}".format(efic)
+        print "A eficiência do código é {}".format(efic)
 
         """
         c) Faça a codiﬁcação da mensagem contida no ﬁcheiro (usando a função realizada no ponto 2). Meça o tempo
