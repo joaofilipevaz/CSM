@@ -52,7 +52,7 @@ def gera_huffman(freq):
         for i in xrange(len(tabela)):
             for z in xrange(len(l[1])):
 
-                # se o simbolo no dicionario for igual ao simbolo do nó extraido
+                # se o simbolo no array for igual ao simbolo do nó extraido
                 if tabela[i][1][0] == l[1][z]:
 
                     # para o no da esquerda guarda o bit 0 na codificação
@@ -60,7 +60,7 @@ def gera_huffman(freq):
             for t in xrange(len(r[1])):
                 if tabela[i][1][0] == r[1][t]:
                     tabela[i][2] += '1'
-
+        # adiciona a soma dos nós a queue
         p.put([l[0] + r[0], l[1] + r[1]])
 
     # inverte a string com a codificação para representar o percurso da raiz até as folhas
@@ -155,7 +155,7 @@ def descodifica(msg_cod):
     # segmento de 8 bits com o numero de simbolos activos e o numero de ocorrencias dos simbolos
     num_simb_activos = int(msg_cod[0:8], 2)+1
 
-    # slice da mensagem para excluir o oito bits lidos
+    # slice da mensagem para excluir os oito bits lidos
     msg_cod = msg_cod[8:]
 
     # sequencia de simbolos para output
@@ -323,8 +323,8 @@ def main(files):
         # Eficiencia do codigo
         efic = hx/l
 
-        print "A Entropia é de {} bits/simbolo".format(hx)
-        print "O numero médio de bits por simbolo é de {}".format(l)
+        print "A Entropia é de {} bits/símbolo".format(hx)
+        print "O numero médio de bits por símbolo é de {}".format(l)
         print "A eficiência do código é {}".format(efic)
 
         """
